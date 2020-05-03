@@ -1,56 +1,67 @@
 #include <iostream>
 #include <vector>
-#include <map>
+#include <unordered_set>
+#include <set>
 
 using namespace std;
 
-int main()
-{
-	//vector<vector<int>> origin = { {1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16} };
-	vector<vector<int>> origin = { {1,2,3,4,5}
-									,{6,7,8,9,10}
-									,{11,12,13,14,15}
-									,{16,17,18,19,20} 
-									,{21,22,23,24,25} };
-	int size = origin.size();
-	vector<vector<int>> temp(size, vector<int>(size, 0));
+int solution(int n, vector<int> lost, vector<int> reserve) {
+	int answer = 0;
+	unordered_set<int> l(lost.begin(), lost.end());//잃어버린애들.
+	set<int> r;	//여분얘들.
+	unordered_set<int> inter;	//교집합 잃어버린얘들+여분얘들
 
-	for (vector<int> _vec : origin)
+	for (auto& x : reserve)
 	{
-		for (int _int : _vec)
+		if (l.find(x) == l.end())
 		{
-			printf("%3d", _int);
+			//잃어버린 목록에 없다.
+			//여분얘들 추가.
+			r.insert(x);
 		}
-
-		cout << endl;
-	}
-
-	cout << endl;
-
-	for (int i = 0; i < size; i++)
-	{
-		for (int j = 0; j < size; j++)
+		else
 		{
-			//temp[j][size - i - 1] = origin[i][j];	//시계방향 90도
-			temp[size - j - 1][i] = origin[i][j];	//반시계 90도
+			//잃어버린 목록에 있다.
+			//무효 목록에 저장.
+			inter.insert(x);
 		}
 	}
 
-	for (vector<int> _vec : temp)
+	//무효목록에서 잃어버린얘들+여분얘들
+	for (auto& x : inter)
 	{
-		for (int _int : _vec)
-		{
-			printf("%3d", _int);
-		}
-
-		cout << endl;
+		//잃어버린 목록에서 제거.
+		l.erase(x);
 	}
 
-	return 0;
+	for (auto& x : r)
+	{
+		if (l.find(x - 1) != l.end())
+		{
+			l.erase(x - 1);
+		}
+		else if (l.find(x + 1) != l.end())
+		{
+			l.erase(x + 1);
+		}
+	}
+
+	return n - l.size();
 }
 
+void main()
+{
+	int n = 5;
+	vector<int> lost = { 2,4 };
+	vector<int> reserve = { 1,3,5 };
+
+	cout << solution(n, lost, reserve) << endl;
+
+}
+
+
 /*
-//90도 회전
+//90도 회전 
 #include <iostream>
 #include <vector>
 
@@ -674,6 +685,121 @@ int main()
 
 
 //그리디 체육복
+/*
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+#include <set>
+
+using namespace std;
+
+int solution(int n, vector<int> lost, vector<int> reserve) {
+	int answer = 0;
+	unordered_set<int> l(lost.begin(), lost.end());//잃어버린애들.
+	set<int> r;	//여분얘들.
+	unordered_set<int> inter;//교집합 잃어버린얘들+여분얘들
+
+	for (auto& x : reserve)
+	{
+		if (l.find(x) == l.end())
+		{
+			//잃어버린 목록에 없다.
+			//여분얘들 추가.
+			r.insert(x);
+		}
+		else
+		{
+			//잃어버린 목록에 있다.
+			//무효 목록에 저장.
+			inter.insert(x);
+		}
+	}
+
+	//무효목록에서 잃어버린얘들+여분얘들
+	for (auto& x : inter)
+	{
+		//잃어버린 목록에서 제거.
+		l.erase(x);
+	}
+
+	for (auto& x : r)
+	{
+		if (l.find(x - 1) != l.end())
+		{
+			l.erase(x - 1);
+		}
+		else if (l.find(x + 1) != l.end())
+		{
+			l.erase(x + 1);
+		}
+	}
+
+	return n - l.size();
+}
+
+void main()
+{
+	int n = 5;
+	vector<int> lost = { 2,4 };
+	vector<int> reserve = { 1,3,5 };
+
+	cout << solution(n, lost, reserve) << endl;
+
+}
+*/
+/*
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+int solution(int n, vector<int> lost, vector<int> reserve) {
+	int answer = 0;
+	vector<int> u(n + 2, 1);
+
+	for (int i = 0; i < reserve.size(); i++)
+	{
+		u[reserve[i]]++;
+	}
+	for (int i = 0; i < lost.size(); i++)
+	{
+		u[lost[i]]--;
+	}
+	for (int i = 1; i <= n; i++)
+	{
+		if (u[i - 1] == 0 && u[i] == 2)
+		{
+			u[i - 1] = u[i] = 1;
+		}
+		else if (u[i] == 2 && u[i + 1] == 0)
+		{
+			u[i] = u[i + 1] = 1;
+		}
+
+	}
+
+	for (int i = 1; i <= n; i++)
+	{
+		if (u[i] > 0)
+		{
+			answer++;
+		}
+	}
+
+	return answer;
+}
+
+void main()
+{
+	int n = 5;
+	vector<int> lost = { 2,4 };
+	vector<int> reserve = { 1,3,5 };
+
+	cout << solution(n, lost, reserve) << endl;
+
+}*/
 /*
 #include <iostream>
 
@@ -1641,6 +1767,44 @@ int main()
 
 
 //프로그래머스 코딩테스트 연습 해시 완주하지 못한 선수다른 사람의 풀이
+
+/*
+#include <iostream>
+#include <string>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+string solution(vector<string> participant, vector<string> completion) {
+	string answer = "";
+
+	unordered_map<string, int> d;
+	for (auto& i : participant) d[i]++;
+	for (auto& i : completion) d[i]--;
+	for (auto& i : d)
+	{
+		if (i.second > 0)
+		{
+			answer = i.first;
+			break;
+		}
+	}
+
+	return answer;
+}
+int main()
+{
+	vector<string> participant = { "leo", "kiki","eden" };
+	vector<string> completion = { "kiki","eden" };
+
+
+	cout << solution(participant, completion) << endl;
+
+
+	return 0;
+}
+*/
 /*
 #include <iostream>
 
