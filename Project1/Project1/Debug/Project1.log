@@ -1,3 +1,4 @@
 ﻿  main.cpp
-D:\_Study\Git\CodingTestStudy\Project1\Project1\main.cpp(59,1): warning C4326: 'main'의 반환 형식이 'int'이어야 하는데 'void'입니다.
+D:\_Study\Git\CodingTestStudy\Project1\Project1\main.cpp(15,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+D:\_Study\Git\CodingTestStudy\Project1\Project1\main.cpp(44,1): warning C4326: 'main'의 반환 형식이 'int'이어야 하는데 'void'입니다.
   Project1.vcxproj -> D:\_Study\Git\CodingTestStudy\Project1\Debug\Project1.exe

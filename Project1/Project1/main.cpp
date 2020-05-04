@@ -1,64 +1,266 @@
+
+
+/*
+//깊이너비 dfs bfs 여행경로
 #include <iostream>
+
+#include <string>
 #include <vector>
-#include <unordered_set>
-#include <set>
+#include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 
-int solution(int n, vector<int> lost, vector<int> reserve) {
-	int answer = 0;
-	unordered_set<int> l(lost.begin(), lost.end());//잃어버린애들.
-	set<int> r;	//여분얘들.
-	unordered_set<int> inter;	//교집합 잃어버린얘들+여분얘들
+vector<string> solution(vector<vector<string>> tickets) {
+	vector<string> answer;
+	sort(tickets.begin(), tickets.end(), greater<vector<string>>());
+	unordered_map<string, vector<string>> routes;
 
-	for (auto& x : reserve)
+	for (int i = 0; i < tickets.size(); i++)
 	{
-		if (l.find(x) == l.end())
+		routes[tickets[i][0]].push_back(tickets[i][1]);
+	}
+
+	vector<string> s = vector<string>{ "ICN" };
+
+	while (!s.empty())
+	{
+		string airport = s.back();
+		if (routes.find(airport) == routes.end()
+			|| routes[airport].size() == 0)
 		{
-			//잃어버린 목록에 없다.
-			//여분얘들 추가.
-			r.insert(x);
+			answer.push_back(airport);
+			s.pop_back();
 		}
 		else
 		{
-			//잃어버린 목록에 있다.
-			//무효 목록에 저장.
-			inter.insert(x);
+			s.push_back(routes[airport].back());
+			routes[airport].pop_back();
 		}
 	}
 
-	//무효목록에서 잃어버린얘들+여분얘들
-	for (auto& x : inter)
+	reverse(answer.begin(), answer.end());
+	return answer;
+}
+
+
+void main()
+{
+	vector<vector<string>> tickets = { {"ICN","SFO"},{"ICN","ATL"},{"SFO","ATL"},{"ATL","ICN"},{"ATL","SFO"} };
+	vector<string> result = solution(tickets);
+
+
+
+	return;
+}
+
+*/
+
+/*
+//동적계획법 dynamic programming n으로표현
+#include <iostream>
+#include <unordered_set>
+
+using namespace std;
+
+int solution(int N, int number) {
+	int answer = -1;
+	unordered_set<int> s[8];
+	int base = 0;
+
+	//기본적인 5 55 555 5555 등.
+	for (int i = 0; i < 8; i++)
 	{
-		//잃어버린 목록에서 제거.
-		l.erase(x);
+		base = 10 * base + 1;
+		s[i].insert(base * N);
 	}
 
-	for (auto& x : r)
+	//5랑 55,555,555 제외.
+	for (int i = 1; i < 8; i++)
 	{
-		if (l.find(x - 1) != l.end())
+		for (int j = 0; j < i; j++)
 		{
-			l.erase(x - 1);
+			for (auto& op1 : s[j])
+			{
+				for (auto& op2 : s[i - j - 1])
+				{
+					s[i].insert(op1 + op2);
+					s[i].insert(op1 - op2);
+					s[i].insert(op1 * op2);
+					if(op2 != 0) s[i].insert(op1 / op2);
+				}
+			}
 		}
-		else if (l.find(x + 1) != l.end())
+
+		//만들고자 하는 수가 들어있으면.
+		if (s[i].count(number) > 0)
 		{
-			l.erase(x + 1);
+			answer = i + 1;
+			break;
 		}
 	}
 
-	return n - l.size();
+	return answer;
+}
+
+int main()
+{
+
+	cout << solution(5, 12) << endl;
+
+	return 0;
+}
+
+*/
+
+/*
+//힙 더 맵게
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+int solution(vector<int> scoville, int K) {
+	int answer = 0;
+	priority_queue<int, vector<int>, greater<int>> q;
+	for (auto& i : scoville)
+	{
+		q.push(i);
+	}
+
+	while (1)
+	{
+		int min1 = q.top();
+		q.pop();
+
+		if (min1>= K)
+		{
+			break;
+		}
+		else if (q.empty())
+		{
+			answer = -1;
+			break;
+		}
+
+		int min2 = q.top();
+		q.pop();
+		q.push(min1 + 2 * min2);
+		answer++;
+	}
+
+	return answer;
+}
+
+////내가한거.
+//bool normal = true;
+//
+//bool cmp(int _left, int _right)
+//{
+//	return _left > _right;
+//}
+//
+//bool ifif(vector<int>& scoville, int K)
+//{
+//	if (scoville.size() > 1)
+//	{
+//		sort(scoville.begin(), scoville.end(), cmp);
+//		if (scoville[scoville.size() - 1] >= K)
+//		{
+//			return false;
+//		}
+//		else
+//		{
+//			return true;
+//		}
+//	}
+//	else
+//	{
+//		normal = false;
+//		return false;
+//	}
+//
+//	return true;
+//}
+//
+//int solution(vector<int> scoville, int K) {
+//	int answer = 0;
+//	int mix = 0;
+//	int first = 0;
+//	int second = 0;
+//
+//	while (ifif(scoville, K))
+//	{
+//		first = scoville[scoville.size()-1];
+//		scoville.pop_back();
+//		second = scoville[scoville.size() - 1];
+//		scoville.pop_back();
+//
+//		mix = first + (second * 2);
+//		scoville.push_back(mix);
+//
+//		answer++;
+//	}
+//
+//	return (normal) ? answer : -1;
+//}
+
+void main()
+{
+	//int n = 5;
+	//vector<int> lost = { 3, 30, 34, 5, 9 };
+	//string str = "4177252841";
+	vector<int> v = { 1, 2, 3, 9, 10, 12 };
+	int k = 7;
+	cout << solution(v, k) << endl;
+
+}
+
+*/
+
+/*
+
+//큰 수 만들기 greedy 탐욕법
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+string solution(string number, int k) {
+	string answer = "";
+	for (int i = 0; i < number.size(); i++)
+	{
+		while(!answer.empty() && answer.back() < number[i] && k > 0)
+		{
+			answer.pop_back();
+			k--;
+		}
+
+		if(k == 0)
+		{
+			answer += (number.substr(i, number.size() - i));
+			break;
+		}
+
+		answer.push_back(number[i]);
+	}
+
+	return answer.substr(0, answer.length() - k);
 }
 
 void main()
 {
-	int n = 5;
-	vector<int> lost = { 2,4 };
-	vector<int> reserve = { 1,3,5 };
-
-	cout << solution(n, lost, reserve) << endl;
+	//int n = 5;
+	//vector<int> lost = { 3, 30, 34, 5, 9 };
+	vector<int> v;
+	string str = "4177252841";
+	int k = 4;
+	cout << solution(str, k) << endl;
 
 }
-
+*/
 
 /*
 //90도 회전 
@@ -1257,6 +1459,46 @@ int main()
 
 
 //정렬 가장 큰 수
+/*
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+bool cmp(int a, int b)
+{
+	//해당 케이스에서. return s1 > s2;
+	//a가 앞서는거 true.
+	//b가 앞서는거 false.
+
+	string s1 = to_string(a) + to_string(b);
+	string s2 = to_string(b) + to_string(a);
+	return s1 > s2;
+}
+
+string solution(vector<int> numbers) {
+	string answer = "";
+	sort(numbers.begin(), numbers.end(), cmp);
+
+	for (auto& i : numbers)
+	{
+		answer += to_string(i);
+	}
+
+	return answer[0] == '0' ? "0" : answer;
+}
+
+void main()
+{
+	int n = 5;
+	vector<int> lost = { 3, 30, 34, 5, 9 };
+
+	cout << solution(lost) << endl;
+
+}
+*/
 /*
 #include <iostream>
 
